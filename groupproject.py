@@ -96,18 +96,30 @@ def calculate_scores(data, investor_type):
     else:
         raise ValueError("Invalid investor type")
 
-    # Calculate the score based on weights
+    # Normalize metrics to limit extreme values
+    data['Normalized PEG'] = 1 / data['Price/Earnings to Growth'].replace(0, 1)  # Inverse for lower is better
+    data['Normalized PB'] = 1 / data['Price to Book'].replace(0, 1)
+    data['Normalized PE'] = 1 / data['Price/Earnings'].replace(0, 1)
+    data['Normalized ROE'] = data['Return on Equity'] / 100  # Scale to 0-1
+    data['Normalized DY'] = data['Dividend Yield']  # Already in 0-1 range
+    data['Normalized DPR'] = 1 / data['Dividend Payout Ratio'].replace(0, 1)  # Inverse for lower is better
+
+    # Calculate weighted scores
     data['Score'] = (
-        (weights['Price/Earnings to Growth'] / data['Price/Earnings to Growth'].replace(0, 1)) +  # Lower PEG preferred
-        (weights['Price to Book'] / data['Price to Book'].replace(0, 1)) +  # Lower PB preferred
-        (weights['Price/Earnings'] / data['Price/Earnings'].replace(0, 1)) +  # Lower PE preferred
-        (weights['Return on Equity'] * data['Return on Equity']) +  # Higher ROE preferred
-        (weights['Dividend Yield'] * data['Dividend Yield']) +  # Higher Dividend Yield preferred
-        (weights['Dividend Payout Ratio'] / data['Dividend Payout Ratio'].replace(0, 1))  # Lower DPR preferred
+        weights['Price/Earnings to Growth'] * data['Normalized PEG'] +
+        weights['Price to Book'] * data['Normalized PB'] +
+        weights['Price/Earnings'] * data['Normalized PE'] +
+        weights['Return on Equity'] * data['Normalized ROE'] +
+        weights['Dividend Yield'] * data['Normalized DY'] +
+        weights['Dividend Payout Ratio'] * data['Normalized DPR']
     )
+
+    # Scale scores to a 0-10 range
+    data['Score'] = 10 * (data['Score'] / data['Score'].max())
 
     # Sort by score
     return data.sort_values(by='Score', ascending=False)
+
 
 
 # Scoring Interpretation in Streamlit
