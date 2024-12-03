@@ -59,38 +59,38 @@ def calculate_scores(data, investor_type):
             'Price/Earnings to Growth': 0.2,  # Lower PEG preferred
             'Price to Book': 0.25,           # Lower PB preferred
             'Price/Earnings': 0.25,          # Lower PE preferred
-            'Return on Equity': 0.1,         # Neutral for ROE
+            'Return on Equity': 0.15,        # Moderate weight for ROE
             'Dividend Yield': 0.1,           # Minimal impact
-            'Dividend Payout Ratio': 0.1     # Lower DPR preferred
+            'Dividend Payout Ratio': 0.05    # Lower DPR preferred
         }
     elif investor_type == "Growth Investor":
         weights = {
-            'Price/Earnings to Growth': 0.1,  # Somewhat low PEG preferred
-            'Price to Book': 0.1,            # Minimal PB focus
-            'Price/Earnings': 0.1,           # Lower PE less critical
-            'Return on Equity': 0.5,         # High ROE preferred
-            'Dividend Yield': 0.1,           # Minimal importance
-            'Dividend Payout Ratio': 0.1     # Moderate impact for stability
+            'Price/Earnings to Growth': 0.15,  # Somewhat low PEG preferred
+            'Price to Book': 0.15,            # Moderate PB focus
+            'Price/Earnings': 0.15,           # Lower PE less critical
+            'Return on Equity': 0.4,          # High ROE preferred
+            'Dividend Yield': 0.1,            # Minimal importance
+            'Dividend Payout Ratio': 0.05     # Minimal impact for stability
         }
     elif investor_type == "Income Investor":
         weights = {
             'Price/Earnings to Growth': 0.1,  # Minimal importance
             'Price to Book': 0.1,            # Minimal impact
             'Price/Earnings': 0.1,           # Neutral
-            'Return on Equity': 0.1,         # Moderate impact for sustainability
+            'Return on Equity': 0.15,        # Moderate impact for sustainability
             'Dividend Yield': 0.4,           # High weight for income
-            'Dividend Payout Ratio': 0.2     # Ensure sustainable dividends
+            'Dividend Payout Ratio': 0.15    # Ensure sustainable dividends
         }
     else:
         raise ValueError("Invalid investor type")
 
-    # Normalize metrics to limit extreme values
-    data['Normalized PEG'] = 1 / data['Price/Earnings to Growth'].replace(0, 1)  # Inverse for lower is better
-    data['Normalized PB'] = 1 / data['Price to Book'].replace(0, 1)
-    data['Normalized PE'] = 1 / data['Price/Earnings'].replace(0, 1)
+    # Adjust normalization to prevent extreme suppression of small values
+    data['Normalized PEG'] = 1 / (data['Price/Earnings to Growth'].replace(0, 1) + 1)  # Shift to avoid division by near-zero
+    data['Normalized PB'] = 1 / (data['Price to Book'].replace(0, 1) + 1)
+    data['Normalized PE'] = 1 / (data['Price/Earnings'].replace(0, 1) + 1)
     data['Normalized ROE'] = data['Return on Equity'] / 100  # Scale to 0-1
     data['Normalized DY'] = data['Dividend Yield']  # Already in 0-1 range
-    data['Normalized DPR'] = 1 / data['Dividend Payout Ratio'].replace(0, 1)  # Inverse for lower is better
+    data['Normalized DPR'] = 1 / (data['Dividend Payout Ratio'].replace(0, 1) + 1)
 
     # Calculate weighted scores
     data['Score'] = (
@@ -107,6 +107,7 @@ def calculate_scores(data, investor_type):
 
     # Sort by score
     return data.sort_values(by='Score', ascending=False)
+
 
 
 
