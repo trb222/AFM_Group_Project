@@ -4,15 +4,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load and clean the dataset
+import pandas as pd
+import numpy as np
+
 def load_data():
     # Load the uploaded dataset
-    data = pd.read_csv("actuallythefinaldataset.csv")
-  # Path to your uploaded dataset
+    data = pd.read_csv("actuallythefinaldataset.csv")  # Replace with your dataset path
     
     # Rename columns to align with references in the code
     data.rename(columns={
-        'PEG': 'Price/Earnings to Growth',  # Corrected for PEG
-        'PE': 'Price/Earnings',            # Corrected for PE
+        'PEG': 'Price/Earnings to Growth',
+        'PE': 'Price/Earnings',
         'PTB': 'Price to Book',
         'ROE': 'Return on Equity',
         'DIVY': 'Dividend Yield',
@@ -25,9 +27,22 @@ def load_data():
     data['Price/Earnings to Growth'] = pd.to_numeric(data['Price/Earnings to Growth'], errors='coerce')
     data['Price to Book'] = pd.to_numeric(data['Price to Book'], errors='coerce')
     data['Return on Equity'] = pd.to_numeric(data['Return on Equity'], errors='coerce')
-    data['Price/Earnings'] = pd.to_numeric(data['Price/Earnings'], errors='coerce')  # Ensure PE is numeric
+    data['Price/Earnings'] = pd.to_numeric(data['Price/Earnings'], errors='coerce')
+
+    # Remove outliers for each numeric column using IQR
+    numeric_columns = ['Price/Earnings to Growth', 'Price to Book', 'Price/Earnings',
+                       'Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']
     
+    for col in numeric_columns:
+        Q1 = data[col].quantile(0.25)
+        Q3 = data[col].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        data = data[(data[col] >= lower_bound) & (data[col] <= upper_bound)]
+
     return data
+
 
 # Filter stocks based on user inputs
 def filter_stocks(data, peg_min, peg_max, pb_min, pb_max, pe_min, pe_max, roe_min, dy_min, dp_max):
