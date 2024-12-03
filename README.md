@@ -116,7 +116,7 @@ https://afmgroupproject-kttkottuk8ypcfmryapach.streamlit.app/
 
       Each investor type uses a different set of weights for the metrics:
 
-    **Metric	Value Investor,	Growth Investor,	Income Investor**
+                    **Metric	Value Investor,	Growth Investor,	Income Investor**
       Price/Earnings to Growth	0.2	0.1	0.1
                 Price to Book	 0.25	0.1	0.1
               Price/Earnings	 0.25	0.1	0.1
