@@ -29,10 +29,11 @@ def load_data():
     data['Return on Equity'] = pd.to_numeric(data['Return on Equity'], errors='coerce')
     data['Price/Earnings'] = pd.to_numeric(data['Price/Earnings'], errors='coerce')
 
-    # Remove outliers for each numeric column using IQR
+    # Remove entire rows where any column has an outlier using IQR
     numeric_columns = ['Price/Earnings to Growth', 'Price to Book', 'Price/Earnings',
                        'Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']
     
+    # Identify outliers across all columns
     for col in numeric_columns:
         Q1 = data[col].quantile(0.25)
         Q3 = data[col].quantile(0.75)
@@ -42,6 +43,7 @@ def load_data():
         data = data[(data[col] >= lower_bound) & (data[col] <= upper_bound)]
 
     return data
+
 
 
 # Filter stocks based on user inputs
