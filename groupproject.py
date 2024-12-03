@@ -97,10 +97,11 @@ def calculate_scores(data, investor_type):
 def display_score_interpretation():
     st.write("### Score Interpretation Scale")
     st.markdown("""
-    - **Score > 1:** Strong Candidate
-    - **Score 0.5 - 1:** Average Candidate (requires closer review)
-    - **Score < 0.5:** Below Average Candidate (likely not ideal)
+    - **Score > 5:** Great Candidate
+    - **Score 1 - 5:** Average Candidate (requires further insight)
+    - **Score < 1:** Poor Candidate
     """)
+
 
 # Create bar chart visualizations
 def show_visualizations(data):
