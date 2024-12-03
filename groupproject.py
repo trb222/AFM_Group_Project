@@ -4,17 +4,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load and clean the dataset
-import pandas as pd
-import numpy as np
-
 def load_data():
     # Load the uploaded dataset
-    data = pd.read_csv("actuallythefinaldataset.csv")  # Replace with your dataset path
+   data = pd.read_csv("actuallythefinaldataset.csv")  # Path to your uploaded dataset
     
     # Rename columns to align with references in the code
     data.rename(columns={
-        'PEG': 'Price/Earnings to Growth',
-        'PE': 'Price/Earnings',
+        'PEG': 'Price/Earnings to Growth',  # Corrected for PEG
+        'PE': 'Price/Earnings',            # Corrected for PE
         'PTB': 'Price to Book',
         'ROE': 'Return on Equity',
         'DIVY': 'Dividend Yield',
@@ -27,12 +24,9 @@ def load_data():
     data['Price/Earnings to Growth'] = pd.to_numeric(data['Price/Earnings to Growth'], errors='coerce')
     data['Price to Book'] = pd.to_numeric(data['Price to Book'], errors='coerce')
     data['Return on Equity'] = pd.to_numeric(data['Return on Equity'], errors='coerce')
-    data['Price/Earnings'] = pd.to_numeric(data['Price/Earnings'], errors='coerce')
-
+    data['Price/Earnings'] = pd.to_numeric(data['Price/Earnings'], errors='coerce')  # Ensure PE is numeric
+    
     return data
-
-
-
 
 # Filter stocks based on user inputs
 def filter_stocks(data, peg_min, peg_max, pb_min, pb_max, pe_min, pe_max, roe_min, dy_min, dp_max):
@@ -59,56 +53,43 @@ def calculate_scores(data, investor_type):
             'Price/Earnings to Growth': 0.2,  # Lower PEG preferred
             'Price to Book': 0.25,           # Lower PB preferred
             'Price/Earnings': 0.25,          # Lower PE preferred
-            'Return on Equity': 0.15,        # Moderate weight for ROE
+            'Return on Equity': 0.1,         # Neutral for ROE
             'Dividend Yield': 0.1,           # Minimal impact
-            'Dividend Payout Ratio': 0.05    # Lower DPR preferred
+            'Dividend Payout Ratio': 0.1     # Lower DPR preferred
         }
     elif investor_type == "Growth Investor":
         weights = {
-            'Price/Earnings to Growth': 0.15,  # Somewhat low PEG preferred
-            'Price to Book': 0.15,            # Moderate PB focus
-            'Price/Earnings': 0.15,           # Lower PE less critical
-            'Return on Equity': 0.4,          # High ROE preferred
-            'Dividend Yield': 0.1,            # Minimal importance
-            'Dividend Payout Ratio': 0.05     # Minimal impact for stability
+            'Price/Earnings to Growth': 0.1,  # Somewhat low PEG preferred
+            'Price to Book': 0.1,            # Minimal PB focus
+            'Price/Earnings': 0.1,           # Lower PE less critical
+            'Return on Equity': 0.5,         # High ROE preferred
+            'Dividend Yield': 0.1,           # Minimal importance
+            'Dividend Payout Ratio': 0.1     # Moderate impact for stability
         }
     elif investor_type == "Income Investor":
         weights = {
             'Price/Earnings to Growth': 0.1,  # Minimal importance
             'Price to Book': 0.1,            # Minimal impact
             'Price/Earnings': 0.1,           # Neutral
-            'Return on Equity': 0.15,        # Moderate impact for sustainability
+            'Return on Equity': 0.1,         # Moderate impact for sustainability
             'Dividend Yield': 0.4,           # High weight for income
-            'Dividend Payout Ratio': 0.15    # Ensure sustainable dividends
+            'Dividend Payout Ratio': 0.2     # Ensure sustainable dividends
         }
     else:
         raise ValueError("Invalid investor type")
 
-    # Adjust normalization to prevent extreme suppression of small values
-    data['Normalized PEG'] = 1 / (data['Price/Earnings to Growth'].replace(0, 1) + 1)  # Shift to avoid division by near-zero
-    data['Normalized PB'] = 1 / (data['Price to Book'].replace(0, 1) + 1)
-    data['Normalized PE'] = 1 / (data['Price/Earnings'].replace(0, 1) + 1)
-    data['Normalized ROE'] = data['Return on Equity'] / 100  # Scale to 0-1
-    data['Normalized DY'] = data['Dividend Yield']  # Already in 0-1 range
-    data['Normalized DPR'] = 1 / (data['Dividend Payout Ratio'].replace(0, 1) + 1)
-
-    # Calculate weighted scores
+    # Calculate the score based on weights
     data['Score'] = (
-        weights['Price/Earnings to Growth'] * data['Normalized PEG'] +
-        weights['Price to Book'] * data['Normalized PB'] +
-        weights['Price/Earnings'] * data['Normalized PE'] +
-        weights['Return on Equity'] * data['Normalized ROE'] +
-        weights['Dividend Yield'] * data['Normalized DY'] +
-        weights['Dividend Payout Ratio'] * data['Normalized DPR']
+        (weights['Price/Earnings to Growth'] / data['Price/Earnings to Growth'].replace(0, 1)) +  # Lower PEG preferred
+        (weights['Price to Book'] / data['Price to Book'].replace(0, 1)) +  # Lower PB preferred
+        (weights['Price/Earnings'] / data['Price/Earnings'].replace(0, 1)) +  # Lower PE preferred
+        (weights['Return on Equity'] * data['Return on Equity']) +  # Higher ROE preferred
+        (weights['Dividend Yield'] * data['Dividend Yield']) +  # Higher Dividend Yield preferred
+        (weights['Dividend Payout Ratio'] / data['Dividend Payout Ratio'].replace(0, 1))  # Lower DPR preferred
     )
-
-    # Scale scores to a 0-10 range
-    data['Score'] = 10 * (data['Score'] / data['Score'].max())
 
     # Sort by score
     return data.sort_values(by='Score', ascending=False)
-
-
 
 
 # Scoring Interpretation in Streamlit
