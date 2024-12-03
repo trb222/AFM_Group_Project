@@ -6,7 +6,7 @@ import seaborn as sns
 # Load and clean the dataset
 def load_data():
     # Load the uploaded dataset
-    data = pd.read_csv("actuallythefinaldataset.csv")  # Path to your uploaded dataset
+    data = pd.read_csv(r"C:\Users\thoma\Downloads\actuallythefinaldataset.csv")  # Path to your uploaded dataset
     
     # Rename columns to align with references in the code
     data.rename(columns={
@@ -27,7 +27,6 @@ def load_data():
     data['Price/Earnings'] = pd.to_numeric(data['Price/Earnings'], errors='coerce')  # Ensure PE is numeric
     
     return data
-
 
 # Filter stocks based on user inputs
 def filter_stocks(data, peg_min, peg_max, pb_min, pb_max, pe_min, pe_max, roe_min, dy_min, dp_max):
@@ -97,13 +96,11 @@ def calculate_scores(data, investor_type):
 def display_score_interpretation():
     st.write("### Score Interpretation Scale")
     st.markdown("""
-    - **Score > 5:** Great Candidate
-    - **Score 1 - 5:** Average Candidate (requires further insight)
-    - **Score < 1:** Poor Candidate
+    - **Score > 1:** Strong Candidate
+    - **Score 0.5 - 1:** Average Candidate (requires closer review)
+    - **Score < 0.5:** Below Average Candidate (likely not ideal)
     """)
 
-
-# Create bar chart visualizations
 # Create bar chart visualizations
 def show_visualizations(data):
     st.header("Visualization")
@@ -111,26 +108,13 @@ def show_visualizations(data):
         "Select Metric for Bar Chart",
         ["Price/Earnings to Growth", "Price to Book", "Price/Earnings", "Return on Equity", "Dividend Yield", "Dividend Payout Ratio", "Score"]
     )
-    
-    # Use original data (not formatted) for visualizations
     plt.figure(figsize=(10, 6))
     sns.barplot(data=data, x="TICKER", y=selected_metric)
     plt.xticks(rotation=90)
     plt.title(f"Bar Chart of {selected_metric}")
     st.pyplot(plt)
 
-
-# Format relevant columns as percentages
-def format_percentages(data):
-    formatted_data = data.copy()
-    percentage_columns = ['Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']
-    for column in percentage_columns:
-        if column in formatted_data:
-            formatted_data[column] = formatted_data[column] * 100  # Convert to percentage
-    return formatted_data
-
-
-# Main app function (updated report generation)
+# Main app function
 def main():
     st.title("Stock Screener Application")
     st.sidebar.header("Filter Criteria")
@@ -161,23 +145,18 @@ def main():
     # Calculate scores based on investor type
     if not filtered_data.empty:
         filtered_data = calculate_scores(filtered_data, investor_type)
-        formatted_data = format_percentages(filtered_data)  # Format as percentages for display
     
     # Display filtered results
     st.header("Filtered Results")
     st.write(f"Found {len(filtered_data)} stocks meeting your criteria.")
-    st.dataframe(formatted_data[['TICKER', 'Price/Earnings to Growth', 'Price to Book', 'Price/Earnings',
-                                'Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']].style.format({
-                                    'Return on Equity': '{:.2f}%',
-                                    'Dividend Yield': '{:.2f}%',
-                                    'Dividend Payout Ratio': '{:.2f}%'
-                                }))
+    st.dataframe(filtered_data[['TICKER', 'Price/Earnings to Growth', 'Price to Book', 'Price/Earnings',
+                                'Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']])
     
     # Display scoring results
     if not filtered_data.empty:
         st.header("Scoring Results")
         st.write("The following table displays the scores for the filtered stocks:")
-        st.table(formatted_data[['TICKER', 'Score']].style.format({'Score': '{:.2f}'}))
+        st.table(filtered_data[['TICKER', 'Score']].style.format({'Score': '{:.2f}'}))
         
         # Display revised scoring interpretation
         display_score_interpretation()
@@ -186,7 +165,7 @@ def main():
     if not filtered_data.empty:
         show_visualizations(filtered_data)
     
-    # Download filtered results as CSV (use unformatted data)
+    # Download filtered results as CSV
     if not filtered_data.empty:
         csv = filtered_data.to_csv(index=False)
         st.download_button(
@@ -196,9 +175,6 @@ def main():
             mime='text/csv',
         )
 
-
-
 # Run the app
 if __name__ == "__main__":
     main()
-
