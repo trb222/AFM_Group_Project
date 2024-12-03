@@ -104,17 +104,21 @@ def display_score_interpretation():
 
 
 # Create bar chart visualizations
+# Create bar chart visualizations
 def show_visualizations(data):
     st.header("Visualization")
     selected_metric = st.selectbox(
         "Select Metric for Bar Chart",
         ["Price/Earnings to Growth", "Price to Book", "Price/Earnings", "Return on Equity", "Dividend Yield", "Dividend Payout Ratio", "Score"]
     )
+    
+    # Use original data (not formatted) for visualizations
     plt.figure(figsize=(10, 6))
     sns.barplot(data=data, x="TICKER", y=selected_metric)
     plt.xticks(rotation=90)
     plt.title(f"Bar Chart of {selected_metric}")
     st.pyplot(plt)
+
 
 # Format relevant columns as percentages
 def format_percentages(data):
@@ -126,7 +130,7 @@ def format_percentages(data):
     return formatted_data
 
 
-# Main app function
+# Main app function (updated report generation)
 def main():
     st.title("Stock Screener Application")
     st.sidebar.header("Filter Criteria")
@@ -173,7 +177,7 @@ def main():
     if not filtered_data.empty:
         st.header("Scoring Results")
         st.write("The following table displays the scores for the filtered stocks:")
-        st.table(filtered_data[['TICKER', 'Score']].style.format({'Score': '{:.2f}'}))
+        st.table(formatted_data[['TICKER', 'Score']].style.format({'Score': '{:.2f}'}))
         
         # Display revised scoring interpretation
         display_score_interpretation()
@@ -182,15 +186,16 @@ def main():
     if not filtered_data.empty:
         show_visualizations(filtered_data)
     
-    # Download filtered results as CSV
+    # Download filtered results as CSV (use unformatted data)
     if not filtered_data.empty:
-        csv = formatted_data.to_csv(index=False)
+        csv = filtered_data.to_csv(index=False)
         st.download_button(
             label="Download Results as CSV",
             data=csv,
             file_name='filtered_stocks.csv',
             mime='text/csv',
         )
+
 
 
 # Run the app
