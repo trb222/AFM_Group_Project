@@ -115,6 +115,16 @@ def show_visualizations(data):
     plt.title(f"Bar Chart of {selected_metric}")
     st.pyplot(plt)
 
+# Format relevant columns as percentages
+def format_percentages(data):
+    formatted_data = data.copy()
+    percentage_columns = ['Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']
+    for column in percentage_columns:
+        if column in formatted_data:
+            formatted_data[column] = formatted_data[column] * 100  # Convert to percentage
+    return formatted_data
+
+
 # Main app function
 def main():
     st.title("Stock Screener Application")
@@ -146,12 +156,17 @@ def main():
     # Calculate scores based on investor type
     if not filtered_data.empty:
         filtered_data = calculate_scores(filtered_data, investor_type)
+        formatted_data = format_percentages(filtered_data)  # Format as percentages for display
     
     # Display filtered results
     st.header("Filtered Results")
     st.write(f"Found {len(filtered_data)} stocks meeting your criteria.")
-    st.dataframe(filtered_data[['TICKER', 'Price/Earnings to Growth', 'Price to Book', 'Price/Earnings',
-                                'Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']])
+    st.dataframe(formatted_data[['TICKER', 'Price/Earnings to Growth', 'Price to Book', 'Price/Earnings',
+                                'Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']].style.format({
+                                    'Return on Equity': '{:.2f}%',
+                                    'Dividend Yield': '{:.2f}%',
+                                    'Dividend Payout Ratio': '{:.2f}%'
+                                }))
     
     # Display scoring results
     if not filtered_data.empty:
@@ -168,7 +183,7 @@ def main():
     
     # Download filtered results as CSV
     if not filtered_data.empty:
-        csv = filtered_data.to_csv(index=False)
+        csv = formatted_data.to_csv(index=False)
         st.download_button(
             label="Download Results as CSV",
             data=csv,
@@ -176,6 +191,8 @@ def main():
             mime='text/csv',
         )
 
+
 # Run the app
 if __name__ == "__main__":
     main()
+
