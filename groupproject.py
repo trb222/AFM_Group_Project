@@ -6,7 +6,7 @@ import seaborn as sns
 # Load and clean the dataset
 def load_data():
     # Load the uploaded dataset
-   data = pd.read_csv("actuallythefinaldataset.csv")  # Path to your uploaded dataset
+    data = pd.read_csv("actuallythefinaldataset.csv")  # Path to your uploaded dataset
     
     # Rename columns to align with references in the code
     data.rename(columns={
@@ -27,6 +27,7 @@ def load_data():
     data['Price/Earnings'] = pd.to_numeric(data['Price/Earnings'], errors='coerce')  # Ensure PE is numeric
     
     return data
+
 
 # Filter stocks based on user inputs
 def filter_stocks(data, peg_min, peg_max, pb_min, pb_max, pe_min, pe_max, roe_min, dy_min, dp_max):
