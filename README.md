@@ -7,7 +7,7 @@ https://afmgroupproject-kttkottuk8ypcfmryapach.streamlit.app/
 
 **Stock Screener Application**
 
-    This Stock Screener Application is built using Streamlit and allows users to filter and score stocks based on various financial metrics and investor preferences. It provides a user-friendly interface for stock analysis and includes features like data visualization and CSV export for the filtered results.
+This Stock Screener Application is built using Streamlit and allows users to filter and score stocks based on various financial metrics and investor preferences. It provides a user-friendly interface for stock analysis and includes features like data visualization and CSV export for the filtered results.
 
 **Features**
     
