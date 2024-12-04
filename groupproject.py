@@ -91,7 +91,6 @@ def calculate_scores(data, investor_type):
     # Sort by score
     return data.sort_values(by='Score', ascending=False)
 
-
 # Scoring Interpretation in Streamlit
 def display_score_interpretation():
     st.write("### Score Interpretation Scale")
@@ -142,18 +141,17 @@ def main():
     # Filter data based on user criteria
     filtered_data = filter_stocks(data, peg_min, peg_max, pb_min, pb_max, pe_min, pe_max, roe_min, dy_min / 100, dp_max / 100)
     
-    # Calculate scores based on investor type
     if not filtered_data.empty:
+        # Calculate scores based on investor type
         filtered_data = calculate_scores(filtered_data, investor_type)
-    
-    # Display filtered results
-    st.header("Filtered Results")
-    st.write(f"Found {len(filtered_data)} stocks meeting your criteria.")
-    st.dataframe(filtered_data[['TICKER', 'Price/Earnings to Growth', 'Price to Book', 'Price/Earnings',
-                                'Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']])
-    
-    # Display scoring results
-    if not filtered_data.empty:
+        
+        # Display filtered results
+        st.header("Filtered Results")
+        st.write(f"Found {len(filtered_data)} stocks meeting your criteria.")
+        st.dataframe(filtered_data[['TICKER', 'Price/Earnings to Growth', 'Price to Book', 'Price/Earnings',
+                                    'Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']])
+        
+        # Display scoring results
         st.header("Scoring Results")
         st.write("The following table displays the scores for the filtered stocks:")
         st.table(filtered_data[['TICKER', 'Score']].style.format({'Score': '{:.2f}'}))
@@ -161,12 +159,10 @@ def main():
         # Display revised scoring interpretation
         display_score_interpretation()
 
-    # Visualization module
-    if not filtered_data.empty:
+        # Visualization module
         show_visualizations(filtered_data)
-    
-    # Download filtered results as CSV
-    if not filtered_data.empty:
+        
+        # Download filtered results as CSV
         csv = filtered_data.to_csv(index=False)
         st.download_button(
             label="Download Results as CSV",
@@ -174,6 +170,9 @@ def main():
             file_name='filtered_stocks.csv',
             mime='text/csv',
         )
+    else:
+        st.header("Filtered Results")
+        st.write("No stocks meet the selected criteria. Please adjust your filters and try again.")
 
 # Run the app
 if __name__ == "__main__":
