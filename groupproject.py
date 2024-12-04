@@ -6,8 +6,7 @@ import seaborn as sns
 # Load and clean the dataset
 def load_data():
     # Load the uploaded dataset
-    data = pd.read_csv("actuallythefinaldataset.csv")  
-    
+    data = pd.read_csv(r"actuallythefinaldataset.csv")  
     # Rename columns to align with references in the code
     data.rename(columns={
         'PEG': 'Price/Earnings to Growth',  # Corrected for PEG
