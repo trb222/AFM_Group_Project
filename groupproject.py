@@ -144,11 +144,13 @@ def main():
         # Calculate scores based on investor type
         filtered_data = calculate_scores(filtered_data, investor_type)
         
-        # Display filtered results
+        # Convert 'Dividend Yield' back to percentage for display
+        filtered_data['Dividend Yield'] = (filtered_data['Dividend Yield'] * 100).round(2)  # Convert to percentage and round
         st.header("Filtered Results")
         st.write(f"Found {len(filtered_data)} stocks meeting your criteria.")
         st.dataframe(filtered_data[['TICKER', 'Price/Earnings to Growth', 'Price to Book', 'Price/Earnings',
-                                    'Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']])
+                                    'Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']].rename(
+            columns={'Dividend Yield': 'Dividend Yield (%)'}))
         
         # Display scoring results
         st.header("Scoring Results")
@@ -162,7 +164,9 @@ def main():
         show_visualizations(filtered_data)
         
         # Download filtered results as CSV
-        csv = filtered_data.to_csv(index=False)
+        csv = filtered_data.copy()
+        csv['Dividend Yield'] = (csv['Dividend Yield'] * 100).round(2)  # Convert to percentage
+        csv = csv.to_csv(index=False)
         st.download_button(
             label="Download Results as CSV",
             data=csv,
