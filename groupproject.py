@@ -138,19 +138,26 @@ def main():
     data = load_data()
     
     # Filter data based on user criteria
-    filtered_data = filter_stocks(data, peg_min, peg_max, pb_min, pb_max, pe_min, pe_max, roe_min, dy_min / 100, dp_max / 100)
+    filtered_data = filter_stocks(data, peg_min, peg_max, pb_min, pb_max, pe_min, pe_max, roe_min / 100, dy_min / 100, dp_max / 100)
     
     if not filtered_data.empty:
         # Calculate scores based on investor type
         filtered_data = calculate_scores(filtered_data, investor_type)
         
-        # Convert 'Dividend Yield' back to percentage for display
-        filtered_data['Dividend Yield'] = (filtered_data['Dividend Yield'] * 100).round(2)  # Convert to percentage and round
+        # Convert percentages back for display
+        filtered_data['Dividend Yield'] = (filtered_data['Dividend Yield'] * 100).round(2)
+        filtered_data['Return on Equity'] = (filtered_data['Return on Equity'] * 100).round(2)
+        filtered_data['Dividend Payout Ratio'] = (filtered_data['Dividend Payout Ratio'] * 100).round(2)
+        
         st.header("Filtered Results")
         st.write(f"Found {len(filtered_data)} stocks meeting your criteria.")
         st.dataframe(filtered_data[['TICKER', 'Price/Earnings to Growth', 'Price to Book', 'Price/Earnings',
                                     'Return on Equity', 'Dividend Yield', 'Dividend Payout Ratio']].rename(
-            columns={'Dividend Yield': 'Dividend Yield (%)'}))
+            columns={
+                'Dividend Yield': 'Dividend Yield (%)',
+                'Return on Equity': 'Return on Equity (%)',
+                'Dividend Payout Ratio': 'Dividend Payout Ratio (%)'
+            }))
         
         # Display scoring results
         st.header("Scoring Results")
@@ -165,7 +172,9 @@ def main():
         
         # Download filtered results as CSV
         csv = filtered_data.copy()
-        csv['Dividend Yield'] = (csv['Dividend Yield'] * 100).round(2)  # Convert to percentage
+        csv['Dividend Yield'] = csv['Dividend Yield'].round(2)  # Already in percentage
+        csv['Return on Equity'] = csv['Return on Equity'].round(2)  # Already in percentage
+        csv['Dividend Payout Ratio'] = csv['Dividend Payout Ratio'].round(2)  # Already in percentage
         csv = csv.to_csv(index=False)
         st.download_button(
             label="Download Results as CSV",
