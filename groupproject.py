@@ -6,7 +6,7 @@ import seaborn as sns
 # Load and clean the dataset
 def load_data():
     # Load the uploaded dataset
-    data = pd.read_csv(r"C:\Users\thoma\Downloads\actuallythefinaldataset.csv")  # Path to your uploaded dataset
+    data = pd.read_csv("actuallythefinaldataset.csv")  
     
     # Rename columns to align with references in the code
     data.rename(columns={
